@@ -80,8 +80,8 @@ export default function LegendScanner() {
         
         <div className="text-center mb-10 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <h1 className="font-serif text-5xl md:text-6xl text-[#1A1A1A]">Complexity, dissolved.</h1>
-          <p className="text-[#666] max-w-lg mx-auto text-sm font-light tracking-wide">The precision instrument for school leadership. Instant compliance
-          * snapshots for COPPA, CIPA, and FERPA.</p>
+          <p className="text-[#666] max-w-lg mx-auto text-sm font-light tracking-wide">The precision instrument for school leadership. Compliance
+          snapshots for COPPA, CIPA, and FERPA in seconds.</p>
         </div>
 
         <div className="w-full max-w-3xl mb-12 relative group">
