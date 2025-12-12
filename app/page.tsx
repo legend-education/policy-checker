@@ -95,6 +95,18 @@ export default function LegendScanner() {
           </div>
         </div>
 
+        {/* --- LOADING SKELETON --- */}
+        {status === "scanning" && (
+          <div className="w-full max-w-3xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {/* Cards Skeleton */}
+            <div className="flex flex-col gap-8 pb-20">
+              <SkeletonCard label="FERPA" sub="Family Educational Rights" />
+              <SkeletonCard label="COPPA" sub="Children's Online Privacy" />
+              <SkeletonCard label="CIPA" sub="Internet Protection" />
+            </div>
+          </div>
+        )}
+
         {/* --- RESULTS SECTION (UPDATED LAYOUT) --- */}
         {report && status === "complete" && (
           <div className="w-full max-w-3xl animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -116,14 +128,80 @@ export default function LegendScanner() {
   );
 }
 
+// --- SKELETON LOADING COMPONENT ---
+function SkeletonCard({ label, sub }: { label: string; sub: string }) {
+  return (
+    <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm overflow-hidden">
+      {/* Header Row */}
+      <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#F5F5F5]">
+        <div>
+          <h3 className="text-sm font-bold tracking-widest text-[#1A1A1A] uppercase flex items-center gap-2">
+            {label}
+          </h3>
+          <p className="text-xs text-[#999] mt-1">{sub}</p>
+        </div>
+
+        {/* Score & Status Skeleton */}
+        <div className="flex items-center gap-6">
+          <div className="text-right space-y-2">
+             <div className="h-4 w-24 bg-[#E5E5E5] rounded animate-pulse"></div>
+             <div className="h-3 w-28 bg-[#E5E5E5] rounded animate-pulse"></div>
+          </div>
+          <div className="relative flex items-center justify-center w-16 h-16">
+             <svg className="absolute w-full h-full transform -rotate-90">
+               <circle cx="32" cy="32" r="28" stroke="#F0F0F0" strokeWidth="4" fill="none" />
+               <circle cx="32" cy="32" r="28" stroke="#E5E5E5" strokeWidth="4" fill="none" strokeDasharray="175" strokeDashoffset="50" className="animate-pulse" />
+             </svg>
+             <span className="font-serif text-2xl text-[#E5E5E5] animate-pulse">--</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Evidence Section Skeleton */}
+      <div className="p-6 md:p-8 bg-[#FAFAFA]">
+        <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-widest mb-4">Evidence Findings</h4>
+        <ul className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <li key={i} className="flex gap-4 items-start">
+               <div className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-[#E5E5E5] animate-pulse" />
+               <div className="flex-1 space-y-2">
+                 <div className="h-4 bg-[#E5E5E5] rounded animate-pulse w-full"></div>
+                 <div className="h-4 bg-[#E5E5E5] rounded animate-pulse w-5/6"></div>
+               </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 // --- NEW COMPONENT: DETAILED CARD ---
 function DetailedCard({ label, sub, data }: any) {
+  const isNA = data.status === "N/A";
+  const isUnknown = data.status === "Unknown";
   const isHigh = data.score >= 80;
   const isLow = data.score <= 40;
   
-  const colorText = isHigh ? "text-[#5F9B63]" : isLow ? "text-amber-700" : "text-yellow-600";
-  const colorBg = isHigh ? "bg-[#5F9B63]" : isLow ? "bg-amber-700" : "bg-yellow-600";
-  const borderColor = isHigh ? "border-[#5F9B63]/30" : isLow ? "border-amber-700/30" : "border-yellow-600/30";
+  // Special handling for N/A and Unknown statuses
+  let colorText, colorBg, borderColor, icon;
+  
+  if (isNA) {
+    colorText = "text-[#666]";
+    colorBg = "bg-[#666]";
+    borderColor = "border-[#666]/30";
+    icon = null; // No icon for N/A
+  } else if (isUnknown) {
+    colorText = "text-[#999]";
+    colorBg = "bg-[#999]";
+    borderColor = "border-[#999]/30";
+    icon = <AlertTriangle className="w-4 h-4 text-[#999]" />;
+  } else {
+    colorText = isHigh ? "text-[#5F9B63]" : isLow ? "text-amber-700" : "text-yellow-600";
+    colorBg = isHigh ? "bg-[#5F9B63]" : isLow ? "bg-amber-700" : "bg-yellow-600";
+    borderColor = isHigh ? "border-[#5F9B63]/30" : isLow ? "border-amber-700/30" : "border-yellow-600/30";
+    icon = isHigh ? <CheckCircle2 className="w-4 h-4 text-[#5F9B63]" /> : <AlertTriangle className={`w-4 h-4 ${colorText}`} />;
+  }
 
   return (
     <div className={`bg-white rounded-xl border ${borderColor} shadow-sm overflow-hidden transition-all hover:shadow-md`}>
@@ -133,7 +211,7 @@ function DetailedCard({ label, sub, data }: any) {
         <div>
           <h3 className="text-sm font-bold tracking-widest text-[#1A1A1A] uppercase flex items-center gap-2">
             {label}
-            {isHigh ? <CheckCircle2 className="w-4 h-4 text-[#5F9B63]" /> : <AlertTriangle className={`w-4 h-4 ${colorText}`} />}
+            {icon}
           </h3>
           <p className="text-xs text-[#999] mt-1">{sub}</p>
         </div>
@@ -142,13 +220,19 @@ function DetailedCard({ label, sub, data }: any) {
         <div className="flex items-center gap-6">
           <div className="text-right">
              <div className={`font-bold uppercase tracking-wider text-xs ${colorText}`}>{data.status}</div>
-             <div className="text-[10px] text-[#CCC] uppercase tracking-widest">Confidence: High</div>
+             <div className="text-[10px] text-[#CCC] uppercase tracking-widest">
+               {isNA ? "Teacher Only" : isUnknown ? "Needs Review" : "Confidence: High"}
+             </div>
           </div>
           <div className="relative flex items-center justify-center w-16 h-16">
-             <span className={`font-serif text-2xl ${colorText}`}>{data.score}</span>
+             <span className={`font-serif text-2xl ${colorText}`}>
+               {isNA ? "N/A" : isUnknown ? "?" : data.score}
+             </span>
              <svg className="absolute w-full h-full transform -rotate-90">
                <circle cx="32" cy="32" r="28" stroke="#F0F0F0" strokeWidth="4" fill="none" />
-               <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="none" className={colorText} strokeDasharray="175" strokeDashoffset={175 - (175 * data.score) / 100} />
+               {!isNA && !isUnknown && (
+                 <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="none" className={colorText} strokeDasharray="175" strokeDashoffset={175 - (175 * data.score) / 100} />
+               )}
              </svg>
           </div>
         </div>
