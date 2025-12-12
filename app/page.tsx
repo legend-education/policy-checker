@@ -61,19 +61,18 @@ export default function LegendScanner() {
             </div>
             <p className="text-sm text-[#666] mb-6 font-light">Enter your email to verify this request.</p>
             <form onSubmit={handleModalSubmit} className="space-y-4">
-              <input autoFocus type="email" required placeholder="principal@school.edu" className="w-full p-4 bg-[#F8F9F8] border border-[#E5E5E5] rounded-lg outline-none focus:border-[#7A9E7E] focus:bg-white transition-all" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <button type="submit" className="w-full py-3 bg-[#1A1A1A] text-white font-bold tracking-widest uppercase rounded-lg hover:bg-[#7A9E7E] transition-colors shadow-lg">Reveal Results</button>
+              <input autoFocus type="email" required placeholder="principal@school.edu" className="w-full p-4 bg-[#F8F9F8] border border-[#E5E5E5] rounded-lg outline-none focus:border-[#5F9B63] focus:bg-white transition-all" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <button type="submit" className="w-full py-3 bg-[#5F9B63] text-white font-bold tracking-widest uppercase rounded-lg hover:bg-[#4F8553] transition-colors shadow-lg">Reveal Results</button>
             </form>
           </div>
         </div>
       )}
 
-      <nav className="p-8 absolute top-0 left-0 w-full flex justify-between items-center">
-        <div className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-[#4A4A4A] uppercase">
-          <div className="w-2 h-2 rounded-full bg-[#1A1A1A]"></div>
-          Legend
+      <nav className="p-8 absolute top-0 left-0 w-full">
+        <div className="flex items-center gap-2 text-sm font-bold tracking-[0.2em] text-[#4A4A4A] uppercase">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#5F9B63]"></div>
+          <span className="font-serif">LEGEND</span>
         </div>
-        {email && <div className="text-[10px] text-[#999] uppercase tracking-widest">{email}</div>}
       </nav>
 
       <div className="flex flex-col items-center justify-center min-h-screen px-4 py-20 max-w-4xl mx-auto w-full">
@@ -81,16 +80,16 @@ export default function LegendScanner() {
         <div className="text-center mb-10 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <h1 className="font-serif text-5xl md:text-6xl text-[#1A1A1A]">Complexity, dissolved.</h1>
           <p className="text-[#666] max-w-lg mx-auto text-sm font-light tracking-wide">The precision instrument for school leadership. Compliance
-          snapshots for COPPA, CIPA, and FERPA in seconds.</p>
+          snapshots for FERPA, COPPA, CIPA in seconds.</p>
         </div>
 
         <div className="w-full max-w-3xl mb-12 relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E5E5E5] to-[#F0F0F0] rounded-xl opacity-50 blur group-focus-within:opacity-100 group-focus-within:from-[#B0C4B1] group-focus-within:to-[#7A9E7E] transition duration-1000"></div>
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E5E5E5] to-[#F0F0F0] rounded-xl opacity-50 blur group-focus-within:opacity-100 group-focus-within:from-[#9BC49D] group-focus-within:to-[#5F9B63] transition duration-1000"></div>
           <div className="relative bg-white rounded-xl leading-none">
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste Privacy Policy & Terms here..." className="w-full h-64 p-6 bg-transparent outline-none text-sm text-[#333] font-light resize-none placeholder:text-[#D4D4D4] placeholder:font-serif placeholder:italic leading-relaxed" />
           </div>
           <div className="absolute bottom-4 right-4">
-             <button onClick={handleStartClick} disabled={status === "scanning" || !text} className={`px-6 py-2 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-300 ${status === "scanning" ? "bg-[#F0F2F0] text-[#7A9E7E] cursor-wait" : "bg-[#1A1A1A] text-white hover:bg-[#7A9E7E] shadow-lg hover:shadow-xl hover:-translate-y-0.5"}`}>
+             <button onClick={handleStartClick} disabled={status === "scanning" || !text} className={`px-6 py-2 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-300 ${status === "scanning" ? "bg-[#F0F2F0] text-[#5F9B63] cursor-wait" : "bg-[#5F9B63] text-white hover:bg-[#4F8553] shadow-lg hover:shadow-xl hover:-translate-y-0.5"}`}>
               {status === "scanning" ? "Analyzing..." : "Run Check"}
             </button>
           </div>
@@ -106,13 +105,9 @@ export default function LegendScanner() {
 
             {/* STACKED LAYOUT: Flex Column instead of Grid */}
             <div className="flex flex-col gap-8 pb-20">
-              <DetailedCard label="COPPA" sub="Children's Online Privacy" data={report.coppa} />
               <DetailedCard label="FERPA" sub="Family Educational Rights" data={report.ferpa} />
+              <DetailedCard label="COPPA" sub="Children's Online Privacy" data={report.coppa} />
               <DetailedCard label="CIPA" sub="Internet Protection" data={report.cipa} />
-            </div>
-
-            <div className="text-center">
-               <button onClick={() => { setText(""); setReport(null); setStatus("idle"); }} className="text-xs text-[#999] hover:text-[#1A1A1A] uppercase tracking-widest font-bold border-b border-transparent hover:border-[#1A1A1A] transition-all">Run Another Scan</button>
             </div>
           </div>
         )}
@@ -126,9 +121,9 @@ function DetailedCard({ label, sub, data }: any) {
   const isHigh = data.score >= 80;
   const isLow = data.score <= 40;
   
-  const colorText = isHigh ? "text-[#7A9E7E]" : isLow ? "text-amber-700" : "text-yellow-600";
-  const colorBg = isHigh ? "bg-[#7A9E7E]" : isLow ? "bg-amber-700" : "bg-yellow-600";
-  const borderColor = isHigh ? "border-[#7A9E7E]/30" : isLow ? "border-amber-700/30" : "border-yellow-600/30";
+  const colorText = isHigh ? "text-[#5F9B63]" : isLow ? "text-amber-700" : "text-yellow-600";
+  const colorBg = isHigh ? "bg-[#5F9B63]" : isLow ? "bg-amber-700" : "bg-yellow-600";
+  const borderColor = isHigh ? "border-[#5F9B63]/30" : isLow ? "border-amber-700/30" : "border-yellow-600/30";
 
   return (
     <div className={`bg-white rounded-xl border ${borderColor} shadow-sm overflow-hidden transition-all hover:shadow-md`}>
@@ -138,7 +133,7 @@ function DetailedCard({ label, sub, data }: any) {
         <div>
           <h3 className="text-sm font-bold tracking-widest text-[#1A1A1A] uppercase flex items-center gap-2">
             {label}
-            {isHigh ? <CheckCircle2 className="w-4 h-4 text-[#7A9E7E]" /> : <AlertTriangle className={`w-4 h-4 ${colorText}`} />}
+            {isHigh ? <CheckCircle2 className="w-4 h-4 text-[#5F9B63]" /> : <AlertTriangle className={`w-4 h-4 ${colorText}`} />}
           </h3>
           <p className="text-xs text-[#999] mt-1">{sub}</p>
         </div>
@@ -166,8 +161,8 @@ function DetailedCard({ label, sub, data }: any) {
           {data.findings.map((item: string, i: number) => (
             <li key={i} className="flex gap-4 items-start group">
                <div className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${colorBg}`} />
-               <p className="text-sm text-[#4A4A4A] font-light font-serif italic leading-relaxed group-hover:text-[#1A1A1A] transition-colors">
-                 "{item}"
+               <p className="text-sm text-[#4A4A4A] leading-relaxed group-hover:text-[#1A1A1A] transition-colors">
+                 {item}
                </p>
             </li>
           ))}

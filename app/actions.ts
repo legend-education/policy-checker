@@ -32,34 +32,67 @@ export async function scanLegalText(text: string, email: string) {
 
   try {
     const { object } = await generateObject({
-      model: openai('gpt-4o'),
+      model: openai('gpt-5.2'),
       schema: ComplianceSchema,
       prompt: `
-        You are a Student Data Privacy Auditor. Analyze the legal text for K-12 compliance.
-        
-        SCORING RUBRIC (The "Proof of Safety" Model):
-        Start at 0 points for each law. ONLY award points if you find EXPLICIT evidence in the text.
-        
-        1. COPPA (Student Data Privacy) - Max 100
-        - (+40 pts): Explicit statement that data is NOT sold and NOT used for behaviorial marketing/ads.
-        - (+30 pts): Clear mechanism for "Parental Consent" or "School Consent" on behalf of parents.
-        - (+30 pts): Data collection is limited to "Educational Purposes" only.
-        
-        2. FERPA (Records & Ownership) - Max 100
-        - (+40 pts): Explicit statement that the School/District retains ownership of student records/IP.
-        - (+30 pts): Vendor agrees to be designated as a "School Official" with legitimate educational interest.
-        - (+30 pts): Clear policy to delete/return data upon contract termination (e.g. "within 60 days").
+        You are a highly specialized Student Data Privacy Auditor. Your task is to analyze the provided legal text (Privacy Policy/ToS) for compliance with US K-12 federal laws. You must use the Weighted Hybrid Scoring method below to calculate the score and fill the provided JSON schema.
 
-        3. CIPA (Internet Safety) - Max 100
-        - (+50 pts): Evidence of moderation tools, profanity filters, or teacher-control over chat.
-        - (+50 pts): No evidence of unmonitored private chat or links to external open social networks.
+### INITIAL CONTEXT CHECK (Determine Tool Type)
+First, analyze the text to determine the likely primary function of the software:
+1.  **Type A (Communication/Browser):** The tool features chat, social networking, web browsing, email, or video conferencing.
+2.  **Type B (Utility/Creation):** The tool is a calculator, grading assistant, non-collaborative creation app, or organizational tool.
+*State the determined Tool Type (A or B) in your scratchpad.*
 
-        CRITICAL INSTRUCTION:
-        - If a section is missing, do NOT award points. 
-        - If the text is vague (e.g. "we may share with partners"), do NOT award points.
-        - In the "findings", quote the text that earned the points. If no points were earned, state "Missing specific clause regarding X".
+### SCORING RUBRIC (Weighted Hybrid Score)
+Start at 0 points for each law. The maximum score for each law is 100.
+**CRITICAL INSTRUCTION:** Any points awarded must be supported by an EXACT QUOTE from the text. If a mandatory item is missing, the corresponding points must be 0.
 
-        Analyze this text:
+---
+
+**1. COPPA (Student Data Privacy) - Max 100**
+*Focus: No Commercial Exploitation of Children Under 13.*
+
+| Clause Type | Mandatory (M) / Desired (D) | Points | Criteria for Awarding Points |
+| :--- | :--- | :--- | :--- |
+| **M** | **No Selling/Advertising** | **50** | Explicitly states PII is NOT SOLD and NOT used for targeted/behavioral advertising. |
+| **M** | **School Consent** | **25** | Clear mechanism for School/Teacher consent on behalf of parents. |
+| **D** | **Educational Purpose/Minimization** | **15** | Data collected is limited to the minimum necessary for educational functions. |
+| **D** | **Parental Deletion Rights** | **10** | Clear process for the school to delete student data upon request. |
+
+**🚩 RED FLAG DEDUCTION (COPPA):** Deduct 100 points if the text mentions "sharing data with partners for marketing" or "selling data to advertisers."
+
+---
+
+**2. FERPA (Records & Control) - Max 100**
+*Focus: School Ownership and Control over Education Records.*
+
+| Clause Type | Mandatory (M) / Desired (D) | Points | Criteria for Awarding Points |
+| :--- | :--- | :--- | :--- |
+| **M** | **District Ownership** | **40** | Explicitly states the District/School retains ownership and control of records. |
+| **M** | **Breach Notification** | **35** | Promises to notify the district within a specific timeline (e.g., 48-72 hours) of a data breach. |
+| **D** | **School Official/Direct Control** | **15** | Vendor agrees to be a "School Official" or acts under the "Direct Control" of the school. |
+| **D** | **Data Deletion Timeline** | **10** | Clear policy to delete/return data upon contract termination with a specified timeframe (e.g., within 60 days). |
+
+**🚩 RED FLAG DEDUCTION (FERPA):** Deduct 100 points if the vendor claims a "perpetual, irrevocable license" to student content.
+
+---
+
+**3. CIPA & Safety (Content, AI, & Communication) - Max 100**
+*Focus: Safety from Harmful Content and Unmonitored Communication.*
+
+| Tool Type | Clause Type | Mandatory (M) / Desired (D) | Points | Criteria for Awarding Points |
+| :--- | :--- | :--- | :--- |
+| **A** | **M** | **Moderation & Auditing** | **50** | Evidence of teacher tools to moderate/view/audit all student-to-student communications. |
+| **A** | **M** | **Walled Garden/No External Link** | **50** | Explicitly bans unmonitored chat and links to external open social networks. |
+| **B** | **M** | **No AI Training on PII** | **50** | Explicit statement that identifiable PII is NOT used to train public/generative AI models. |
+| **B** | **M** | **No Ads/Rabbit Holes** | **50** | The tool avoids displaying third-party ads or non-educational content feeds. |
+
+**CRITICAL INSTRUCTION FOR FINDINGS:**
+* The final percentage should be the calculated score (Score / 100).
+* Quote the exact text that earned the points. If no points were earned for a clause, state the missing clause.
+* The final Status should be determined by the score: **Compliant (80-100), Review (50-79), or Non-Compliant (<50)**.
+
+Analyze this text:
         ${text.substring(0, 30000)}
       `,
     });
